@@ -1,0 +1,69 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Payment</title>
+    <link rel="stylesheet" href="/styles/payment.css">
+    <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
+</head>
+<body>
+
+    <nav class="navbar">
+        <a href="/home" class="back-button">
+            <span class="material-icons">arrow_back</span>
+        </a>
+        <div class="menu-icon">
+            <span class="material-icons">shopping_cart</span>
+        </div>
+    </nav>
+
+    <div class="main">
+        <!-- Foto principal -->
+        <div class="photo-container">
+            <canvas id="photoCanvas" class="photo"></canvas>
+        </div>
+
+        <!-- Sección de resolución -->
+        <div class="resolution">
+            <span class="resolution-text"></span>
+            <div class="line"></div> 
+
+        </div>
+
+        <!-- Texto "Comprar Foto" -->
+        <div class="buy-photo-text">
+            <p>Comprar Foto</p>
+        </div>
+
+        <!-- Botones -->
+        <div class="buttons">
+            <button class="buy-button">Foto única 5$</button>
+            <button class="add-to-cart-button">Agregar al carrito</button>
+        </div>
+    </div>
+
+    <footer class="footer">
+        <div class="footer-item">
+          <span class="material-icons">home</span>
+          <span>Inicio</span>
+        </div>
+        <div class="footer-item">
+          <span class="material-icons">search</span>
+          <span>Explorador</span>
+        </div>
+        <div class="footer-item">
+          <span class="material-icons">notifications</span>
+          <span>Notificaciones</span>
+        </div>
+        <div class="footer-item">
+          <a href="/profile"><span class="material-icons">person</span></a>
+          <span>Perfil</span>
+        </div>
+    </footer>
+
+    <script type="module" src="/payment.mjs"></script>
+    
+    
+</body>
+</html>

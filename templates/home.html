@@ -1,0 +1,61 @@
+<!doctype html>
+<html lang="es">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <link rel="stylesheet" href="/styles/index.css">
+    <title>SkateMap</title>
+    <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
+  </head>
+  <body>
+    <nav class="navbar">
+      <div class="logo">
+        <img src="/styles/assets/tiburon nuevo_page-0001 (1).jpg">
+        <span>Tubarão</span>
+      </div>
+      <button class="post-button">Post</button>
+      <div class="menu-icon">
+        <span class="material-icons">menu</span>
+      </div>
+    </nav>
+
+    <div id="post-form-container" class="hidden">
+      <div class="post-form">
+        <h2>Nueva Publicación</h2>
+        <form id="post-form">
+          <input type="text" id="city" name="city" placeholder="Ingrese la ciudad" required />
+    
+          <label for="image">Seleccionar Imagen:</label>
+          <input type="file" id="image" name="image" accept="image/*" required />
+    
+          <button type="submit">Publicar</button>
+          <button type="button" id="cancel-post">Cancelar</button>
+        </form>
+      </div>
+    </div>
+
+    <section class="photo-gallery" id="feed"></section>
+
+    <footer class="footer">
+      <div class="footer-item">
+        <span class="material-icons">home</span>
+        <span>Inicio</span>
+      </div>
+      <div class="footer-item">
+        <span class="material-icons">search</span>
+        <span>Explorador</span>
+      </div>
+      <div class="footer-item">
+        <span class="material-icons">notifications</span>
+        <span>Notificaciones</span>
+      </div>
+      <div class="footer-item">
+        <a href="/profile"><span class="material-icons">person</span></a>
+        <span>Perfil</span>
+      </div>
+    </footer>
+
+    <!-- Referencia al archivo frontend.mjs para la lógica del frontend -->
+    <script type="module" src="/firebase.mjs"></script>
+  </body>
+</html>

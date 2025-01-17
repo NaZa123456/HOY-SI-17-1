@@ -1,0 +1,45 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Profile Page</title>
+  <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;700&family=Material+Icons" rel="stylesheet">
+  <link rel="stylesheet" href="/styles/profile.css">
+</head>
+<body>
+  <div class="profile-container">
+    <div class="back-arrow">
+      <a href="/home"><span class="material-icons">arrow_back</span></a>
+    </div>
+    <div class="settings-icon">
+      <span class="material-icons" id="settings-btn">settings</span>
+      <div class="dropdown-menu" id="settings-menu" style="display: none;">
+        <button id="logout-btn">Cerrar sesión</button>
+      </div>
+    </div>
+    <div class="profile-header">
+      <img id="profile-picture" class="profile-pic" src="/styles/assets/descargar.jpg" alt="Profile Picture">
+      <h2 id="profile-name">
+        Juanito Perez 
+        <span class="material-icons" id="user-role-icon">person</span> <!-- Icono dinámico -->
+      </h2>
+      <p id="instagram-username" class="instagram-handle">@instagram_user</p>
+      <div class="action-buttons">
+        <button class="btn follow">Follow</button>
+        <button class="btn message">Message</button>
+      </div>
+    </div>
+    <div class="photos-grid">
+      <img class="photo" src="/styles/assets/descargar.jpg" alt="Photo 1">
+      <img class="photo" src="/styles/assets/descargar.jpg" alt="Photo 2">
+      <img class="photo" src="/styles/assets/descargar.jpg" alt="Photo 3">
+      <img class="photo" src="/styles/assets/descargar.jpg" alt="Photo 4">
+      <img class="photo" src="/styles/assets/descargar.jpg" alt="Photo 5">
+      <img class="photo" src="/styles/assets/descargar.jpg" alt="Photo 6">
+    </div>
+  </div>
+
+  <script type="module" src="/profile.mjs"></script>
+</body>
+</html>

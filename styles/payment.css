@@ -1,0 +1,117 @@
+body {
+    margin: 0;
+    font-family: Arial, sans-serif;
+}
+
+.navbar {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    background-color: #fff;
+    padding: 10px 20px;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+.back-button{
+    color: black;
+}
+
+.main {
+    padding: 20px; /* Añadido padding para separar los textos y botones de los bordes */
+}
+
+.photo-container {
+    width: 100%;
+    
+}
+
+.photo {
+    width: 100%;
+    max-height: 250px;
+}
+
+.resolution {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-end; /* Alinear todo a la derecha */
+    margin: 20px 0;
+}
+
+.resolution-text {
+    color: #888;
+    font-size: 14px;
+    margin-bottom: 10px; /* Espacio entre texto y línea */
+    text-align: right; /* Alinear a la derecha */
+}
+
+.line {
+    border-top: 1px solid #ddd;
+    width: 100%;
+}
+
+.buy-photo-text {
+    text-align: right; /* Alinear a la derecha */
+    font-size: 18px;
+    font-weight: bold;
+    margin-bottom: 20px;
+}
+
+.buttons {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-end; /* Alinear los botones a la derecha */
+    gap: 10px;
+}
+
+.buy-button, .add-to-cart-button {
+    background-color: #00bfa5;
+    color: white;
+    border: none;
+    padding: 10px 20px;
+    font-size: 18px;
+    font-weight: 700;
+    border-radius: 5px;
+    cursor: pointer;
+    width: 100%; /* Los botones ocupan todo el ancho disponible */
+}
+
+.buy-button:hover, .add-to-cart-button:hover {
+    background-color: #009c88;
+}
+
+.footer {
+    position: fixed;
+    bottom: 0;
+    left: 0;
+    width: 100%;
+    background-color: #fff;
+    display: flex;
+    justify-content: space-around;
+    align-items: center;
+    padding: 10px 0;
+    box-shadow: 0 -2px 4px rgba(0, 0, 0, 0.1);
+    border-top: 1px solid #ddd;
+    z-index: 1000;
+}
+
+.footer-item {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    font-size: 12px;
+    color: #888;
+}
+
+.footer-item .material-icons {
+    font-size: 24px;
+    color: #888;
+    margin-bottom: 5px;
+}
+
+.footer-item.active {
+    color: #00bfa5;
+}
+
+.footer-item.active .material-icons {
+    color: #00bfa5;
+}

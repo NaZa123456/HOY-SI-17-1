@@ -1,0 +1,63 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Register</title>
+    <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
+    <link rel="stylesheet" href="/styles/Register.css">
+</head>
+<body>
+
+    <div class="background">
+        <div class="background-filter"></div>
+    </div>
+    <div class="form-container">
+        <span class="material-icons close-icon" id="close-form">close</span>
+        <div class="logo">
+            <h1>Nuevo Usuario</h1>
+        </div>
+        <form action="/signup" method="post" class="form">
+          <div class="input-group">
+              <span class="material-icons">person</span>
+              <input type="text" name="name" placeholder="Nombre" required>
+          </div>
+          <div class="input-group">
+              <span class="material-icons">email</span>
+              <input type="email" name="gmail" placeholder="G-mail" required>
+          </div>
+          <div class="input-group">
+              <span class="material-icons">lock</span>
+              <input type="password" name="password" placeholder="Clave" required>
+          </div>
+          <div class="input-group">
+              <span class="material-icons">camera_alt</span>
+              <input type="text" name="instagram" placeholder="Instagram" required>
+          </div>
+
+          <button type="submit">Crea una cuenta</button>
+      
+          <div class="options">
+              <!-- Los botones deben estar dentro del form para enviar el valor correctamente -->
+              <button class="option-button" type="button" onclick="setRole('Fotógrafo')">
+                  <span class="material-icons">camera_alt</span>
+                  Soy Fotógrafo
+              </button>
+              <button class="option-button" type="button" onclick="setRole('Usuario')">
+                  <span class="material-icons">person</span>
+                  Soy Usuario
+              </button>
+          </div>
+      
+          <!-- Este campo oculto debe estar dentro del formulario -->
+          <input type="hidden" name="role" id="role" required>
+      
+      </form>
+      </div>
+    </div>
+
+    <script src="/register.js"></script>
+
+
+</body>
+</html>

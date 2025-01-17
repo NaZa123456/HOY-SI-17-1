@@ -1,0 +1,41 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>LoginSkate</title>
+    <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
+    <link rel="stylesheet" href="/styles/logearte.css">
+
+</head>
+<body>
+
+    <form action="/login" method="post">
+        <span class="material-icons close-icon" id="close-form">close</span>
+        <h1>¡Sea bienvenido!</h1>
+
+        <div class="input-group">
+            <span class="material-icons">mail</span>
+            <input type="email" id="email" name="gmail" placeholder="Ingrese su correo electrónico" required>
+        </div>
+
+        <div class="input-group">
+            <span class="material-icons">vpn_key</span>
+            <input type="password" id="password" name="password" placeholder="Clave" required>
+            <a href="#" class="forgot-password">¿Se te olvidó tu contraseña?</a>
+        </div>
+
+        <button type="submit">Iniciar sesión</button>
+
+        <div class="additional-links">
+            <a href="/signup">Nuevo aquí? ¡Crea tu cuenta!</a>
+            <a href="#">Condiciones de uso</a>
+        </div>
+    </form>
+    
+
+
+
+
+</body>
+</html>
