@@ -4,7 +4,8 @@ const { MercadoPago } = require('mercadopago');
 const admin = require('firebase-admin'); // Agregar Firebase Admin
 
 const app = express();
-const PORT = process.env.PORT || 3000;
+const PORT = process.env.PORT || 10000;
+
 
 // Inicializa Mercado Pago con tu Access Token
 MercadoPago.configurations.setAccessToken('APP_USR-6105589751863240-011918-6581cf44f56ef1911fd573fc88fb43b1-379964637');
