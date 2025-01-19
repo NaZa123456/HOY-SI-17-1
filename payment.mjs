@@ -56,3 +56,18 @@ if (imageUrl) {
 } else {
   console.error('No se encontró el parámetro imageUrl en la URL.');
 }
+
+
+
+//PAGO CON EL BOTON
+// Seleccionar el botón de compra
+const buyButton = document.querySelector('.buy-button');
+
+// Link de pago
+const paymentLink = 'https://mpago.la/25efyu8'; // Tu link de pago único
+
+// Manejar el clic en el botón
+buyButton.addEventListener('click', () => {
+  // Redirigir al usuario al link de pago
+  window.location.href = paymentLink;
+});

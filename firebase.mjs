@@ -107,10 +107,11 @@ postForm.addEventListener('submit', async (e) => {
   e.preventDefault(); // Evitar recargar la página
 
   const city = document.getElementById('city').value;
+  const alias = document.getElementById('alias').value; // Obtener el alias
   const imageInput = document.getElementById('image');
   const file = imageInput.files[0];
 
-  if (!city || !file) {
+  if (!city || !file || !alias) {
     alert('Por favor, completa todos los campos.');
     return;
   }
@@ -125,6 +126,7 @@ postForm.addEventListener('submit', async (e) => {
 
     const newPostRef = await addDoc(collection(db, 'posts'), {
       city: city,
+      alias: alias, // Guardar alias
       imageUrl: imageUrl,
       user: 'Anon', // Cambia esto si tienes autenticación
       date: new Date(),
@@ -135,6 +137,7 @@ postForm.addEventListener('submit', async (e) => {
     // Llama a `addPostToFeed` para agregar la publicación al feed
     addPostToFeed({
       city: city,
+      alias: alias, // Incluir alias en el objeto
       imageUrl: imageUrl,
       user: 'Anon',
       date: new Date(),
