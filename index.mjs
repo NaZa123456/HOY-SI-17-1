@@ -6,7 +6,6 @@ import { dirname } from 'path';
 import session from 'express-session';
 
 
-import mercadopagoRoutes from './mercadopago.mjs';
 
 
 // Obtener la ruta del directorio actual
