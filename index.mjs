@@ -174,8 +174,7 @@ app.post('/login', async (req, res) => {
 });
 
 // Iniciar el servidor
-const port = process.env.PORT || 4000; // Puerto dinámico de Render o 4000 si es local
-
-app.listen(port, () => {
-  console.log;
+const PORT = process.env.PORT || 10000;
+app.listen(PORT, () => {
+  console.log(`Servidor corriendo en el puerto ${PORT}`);
 });
