@@ -23,10 +23,8 @@ const postButton = document.querySelector('.post-button');
 const postFormContainer = document.getElementById('post-form-container');
 const cancelPostButton = document.getElementById('cancel-post');
 const postForm = document.getElementById('post-form');
-const closeFormButton = document.getElementById('close-form'); // Cruz para cerrar el formulario
 const feed = document.getElementById('feed');
 
-// Función para agregar una publicación al feed
 // Función para agregar una publicación al feed
 function addPostToFeed(post) {
   const postElement = document.createElement('div');
@@ -38,12 +36,11 @@ function addPostToFeed(post) {
   postElement.innerHTML = `
     <div class="photo-header">
       <h3>${post.city}</h3>
-      <p>${postDate.toLocaleString()}</p>  <!-- Mostrar fecha correctamente -->
+      <p>${postDate.toLocaleString()}</p>
     </div>
     <img src="${post.imageUrl}" alt="Publicación de ${post.user}" id="image-${post.id}" />
   `;
 
-  // Añadir el evento de clic a la imagen con el postId
   const image = postElement.querySelector('img');
   image.addEventListener('click', () => {
     if (post.id) {
@@ -53,14 +50,14 @@ function addPostToFeed(post) {
     }
   });
 
-  feed.prepend(postElement); // Agregar el nuevo post al feed
+  feed.prepend(postElement);
 }
 
 // Verificar si la imagen está disponible en Firebase Storage
 async function isImageAvailable(imageUrl) {
   try {
     const imageRef = ref(storage, imageUrl);
-    await getDownloadURL(imageRef); // Si la imagen no existe, se lanzará un error
+    await getDownloadURL(imageRef);
     return true;
   } catch (error) {
     return false;
@@ -72,42 +69,38 @@ async function loadPosts() {
   const querySnapshot = await getDocs(collection(db, 'posts'));
   querySnapshot.forEach(async (doc) => {
     const post = doc.data();
-    const postId = doc.id; // Obtiene el id del documento de Firestore
+    const postId = doc.id;
     const imageAvailable = await isImageAvailable(post.imageUrl);
 
-    // Solo agregar al feed si la imagen está disponible
     if (imageAvailable) {
-      post.id = postId; // Añadir el ID al objeto post
+      post.id = postId;
       addPostToFeed(post);
     }
   });
 }
 
-
 // Cargar publicaciones al iniciar la página
 document.addEventListener('DOMContentLoaded', async () => {
   postFormContainer.classList.add('hidden');
-  await loadPosts(); // Cargar las publicaciones desde Firestore
+  await loadPosts();
 });
 
 // Mostrar formulario de publicación
 postButton.addEventListener('click', () => {
-  console.log('Abriendo el formulario...');
   postFormContainer.classList.remove('hidden');
 });
 
-// Ocultar formulario de publicación al presionar el botón de cancelar
+// Ocultar formulario de publicación
 cancelPostButton.addEventListener('click', () => {
-  console.log('Cancelando el formulario...');
   postFormContainer.classList.add('hidden');
 });
 
 // Manejar el envío del formulario
 postForm.addEventListener('submit', async (e) => {
-  e.preventDefault(); // Evitar recargar la página
+  e.preventDefault();
 
   const city = document.getElementById('city').value;
-  const alias = document.getElementById('alias').value; // Obtener el alias
+  const alias = document.getElementById('alias').value;
   const imageInput = document.getElementById('image');
   const file = imageInput.files[0];
 
@@ -116,30 +109,40 @@ postForm.addEventListener('submit', async (e) => {
     return;
   }
 
-  // Subir imagen a Firebase Storage
-  const fileName = `${Date.now()}-${file.name}`;
-  const imageRef = ref(storage, 'images/' + fileName);
-
   try {
+    // Obtener usuario autenticado desde el servidor
+    const response = await fetch('/api/user');
+    const user = await response.json();
+
+    if (!user || !user.name) {
+      alert('Por favor, inicia sesión para publicar.');
+      return;
+    }
+
+    // Subir imagen a Firebase Storage
+    const fileName = `${Date.now()}-${file.name}`;
+    const imageRef = ref(storage, 'images/' + fileName);
+
     await uploadBytes(imageRef, file);
     const imageUrl = await getDownloadURL(imageRef);
 
-    const newPostRef = await addDoc(collection(db, 'posts'), {
-      city: city,
-      alias: alias, // Guardar alias
-      imageUrl: imageUrl,
-      user: 'Anon', // Cambia esto si tienes autenticación
+    // Agregar publicación a Firestore
+    await addDoc(collection(db, 'posts'), {
+      city,
+      alias,
+      imageUrl,
+      user: user.name, // Usuario autenticado
       date: new Date(),
     });
 
     alert('¡Publicación agregada con éxito!');
 
-    // Llama a `addPostToFeed` para agregar la publicación al feed
+    // Añadir publicación al feed
     addPostToFeed({
-      city: city,
-      alias: alias, // Incluir alias en el objeto
-      imageUrl: imageUrl,
-      user: 'Anon',
+      city,
+      alias,
+      imageUrl,
+      user: user.name,
       date: new Date(),
     });
 
@@ -150,18 +153,3 @@ postForm.addEventListener('submit', async (e) => {
     alert('Error subiendo la imagen.');
   }
 });
-
-// Función para eliminar una publicación de Firestore y Firebase Storage
-async function deletePost(postId, imageUrl) {
-  // Eliminar imagen de Firebase Storage
-  const imageRef = ref(storage, imageUrl);
-  try {
-    await deleteObject(imageRef); // Borrar la imagen
-    await deleteDoc(doc(db, 'posts', postId)); // Eliminar la publicación de Firestore
-    alert('Publicación eliminada.');
-    location.reload(); // Recargar la página para reflejar los cambios
-  } catch (error) {
-    console.error('Error al eliminar la publicación:', error);
-    alert('Error al eliminar la publicación.');
-  }
-}

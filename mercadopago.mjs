@@ -1,19 +1,17 @@
 const express = require('express');
 const bodyParser = require('body-parser');
-const { MercadoPago } = require('mercadopago');
-const admin = require('firebase-admin'); // Agregar Firebase Admin
+const mercadopago = require('mercadopago'); // Importación correcta
+const admin = require('firebase-admin'); // Firebase Admin
 
 const app = express();
 const PORT = process.env.PORT || 10000;
 
-
 // Inicializa Mercado Pago con tu Access Token
-MercadoPago.configurations.setAccessToken('APP_USR-6105589751863240-011918-6581cf44f56ef1911fd573fc88fb43b1-379964637');
+mercadopago.configurations.setAccessToken('APP_USR-6105589751863240-011918-6581cf44f56ef1911fd573fc88fb43b1-379964637');
 
 // Inicializa Firebase Admin SDK
 admin.initializeApp({
   credential: admin.credential.applicationDefault(),
-  databaseURL: 'https://your-project-id.firebaseio.com', // Reemplaza con tu URL de Firestore
 });
 
 const db = admin.firestore();
@@ -21,73 +19,65 @@ const db = admin.firestore();
 // Middleware para parsear el body de la notificación
 app.use(bodyParser.json());
 
-// Endpoint de Webhook para recibir las notificaciones
-app.post('/payment/webhook', (req, res) => {
-  const paymentData = req.body;
+// Webhook para notificaciones de Mercado Pago
+app.post('/payment/webhook', async (req, res) => {  //poner URL de mi dominio
+  try {
+    const paymentData = req.body;
 
-  // Verificar el estado del pago
-  if (paymentData?.type === 'payment') {
-    const paymentId = paymentData?.data?.id;
+    if (paymentData?.type === 'payment') {
+      const paymentId = paymentData?.data?.id;
 
-    // Verifica el estado del pago
-    MercadoPago.payment.findById(paymentId).then(payment => {
-      if (payment.status === 'approved') {
-        // El pago fue aprobado, transferir el dinero a la cuenta del vendedor
-        const imageUrl = paymentData?.data?.external_reference; // Usamos imageUrl como identificador
-        getSellerAlias(imageUrl).then(sellerAlias => {
-          if (sellerAlias) {
-            transferToSeller(sellerAlias, payment.transaction_amount);
-          } else {
-            console.log('No se encontró el alias del vendedor');
-          }
-        }).catch(error => {
-          console.error('Error al obtener alias desde Firestore:', error);
-        });
+      // Verifica el pago en Mercado Pago
+      const payment = await mercadopago.payment.findById(paymentId);
+      if (payment.body.status === 'approved') {
+        // Busca el alias del vendedor en Firestore
+        const imageUrl = payment.body.external_reference;
+        const sellerAlias = await getSellerAlias(imageUrl);
+
+        if (sellerAlias) {
+          await transferToSeller(sellerAlias, payment.body.transaction_details.total_paid_amount);
+          console.log('Transferencia realizada con éxito');
+        } else {
+          console.error('Alias del vendedor no encontrado');
+        }
       } else {
         console.log('El pago no fue aprobado');
       }
-    }).catch(error => {
-      console.error('Error al verificar el pago:', error);
-    });
+    }
+
+    res.status(200).send('Webhook recibido');
+  } catch (error) {
+    console.error('Error en el webhook:', error);
+    res.status(500).send('Error interno del servidor');
   }
-
-  res.status(200).send('Webhook recibido');
 });
 
-// Función para obtener el alias del vendedor desde Firestore usando imageUrl
-function getSellerAlias(imageUrl) {
-  return db.collection('posts')  // La colección de posts
-    .where('imageUrl', '==', imageUrl)  // Buscar por el campo imageUrl
-    .get()
-    .then(snapshot => {
-      if (!snapshot.empty) {
-        const doc = snapshot.docs[0];  // Tomamos el primer documento que coincide
-        return doc.data().alias; // Retornamos el alias del vendedor
-      } else {
-        throw new Error('Imagen no encontrada en Firestore');
-      }
-    });
+// Función para obtener el alias del vendedor desde Firestore
+async function getSellerAlias(imageUrl) {
+  const snapshot = await db.collection('posts').where('imageUrl', '==', imageUrl).get();
+  if (!snapshot.empty) {
+    const doc = snapshot.docs[0];
+    return doc.data().alias; // Retorna el alias del vendedor
+  } else {
+    throw new Error('Imagen no encontrada en Firestore');
+  }
 }
 
-// Función para transferir dinero a la cuenta del vendedor
-function transferToSeller(sellerAlias, amount) {
-  const transferAmount = amount * 0.82;  // 82% del pago
+// Función para transferir dinero al vendedor
+async function transferToSeller(sellerAlias, amount) {
+  const transferAmount = amount * 0.88; // 88% del pago
 
-  // Aquí se debe llamar a la API de Mercado Pago para realizar la transferencia
-  // Suponiendo que tienes el token de acceso para hacer transferencias
-  MercadoPago.account.transfer({
-    amount: transferAmount,
-    transaction_details: {
+  try {
+    // Realiza la transferencia utilizando la API de dinero en cuenta
+    const transferResponse = await mercadopago.transfer.create({
+      amount: transferAmount,
+      receiver_alias: sellerAlias, // Alias del destinatario
       description: 'Pago por foto subida',
-    },
-    payer_email: sellerAlias, // Alias del vendedor
-  }).then(response => {
-    console.log('Transferencia realizada:', response);
-  }).catch(error => {
-    console.error('Error en la transferencia:', error);
-  });
+    });
+    console.log('Transferencia realizada:', transferResponse.body);
+  } catch (error) {
+    console.error('Error en la transferencia:', error.response?.message || error);
+  }
 }
 
-app.listen(PORT, () => {
-  console.log(`Servidor corriendo en el puerto ${PORT}`);
-});
+

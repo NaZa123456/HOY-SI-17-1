@@ -10,3 +10,8 @@ function setRole(role) {
       alert('Por favor, selecciona un rol.');
     }
   });
+
+  // Redirigir a /login al hacer clic en la cruz de cierre
+document.getElementById('close-form').addEventListener('click', function () {
+  window.location.href = '/';
+});
