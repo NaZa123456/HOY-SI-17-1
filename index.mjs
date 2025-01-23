@@ -6,7 +6,7 @@ import { dirname } from 'path';
 import session from 'express-session';
 
 
-const mercadopagoRoutes = require('./mercadopago.mjs'); // Importa el archivo con las rutas
+import mercadopagoRoutes from './mercadopago.mjs';
 
 
 // Obtener la ruta del directorio actual
