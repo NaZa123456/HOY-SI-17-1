@@ -20,7 +20,7 @@ const db = admin.firestore();
 app.use(bodyParser.json());
 
 // Webhook para notificaciones de Mercado Pago
-app.post('https://hoy-si-17-1.onrender.com/payment/webhook', async (req, res) => {  //poner URL de mi dominio
+app.post('/payment/webhook', async (req, res) => {  //poner URL de mi dominio
   try {
     const paymentData = req.body;
 

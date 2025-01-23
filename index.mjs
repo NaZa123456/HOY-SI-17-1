@@ -5,6 +5,10 @@ import { fileURLToPath } from 'url';
 import { dirname } from 'path';
 import session from 'express-session';
 
+
+const mercadopagoRoutes = require('./mercadopago.mjs'); // Importa el archivo con las rutas
+
+
 // Obtener la ruta del directorio actual
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = dirname(__filename);
