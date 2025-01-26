@@ -4,6 +4,8 @@ import path from 'path';
 import { fileURLToPath } from 'url';
 import { dirname } from 'path';
 import session from 'express-session';
+import crypto from 'crypto';
+
 
 
 // Obtener la ruta del directorio actual
@@ -189,7 +191,6 @@ app.post('/login', async (req, res) => {
 // Configura tu clave de seguridad de MercadoPago
 const MP_SECRET_KEY = 'APP_USR-6105589751863240-011918-6581cf44f56ef1911fd573fc88fb43b1-379964637';  // La clave secreta de tu cuenta de MercadoPago
 
-// Usar bodyParser para analizar el cuerpo de la solicitud
 
 function verifySignatureFunction(secretKey, data, signature) {
   const body = JSON.stringify(data);  // El cuerpo de la notificación
