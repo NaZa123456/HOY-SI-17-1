@@ -209,7 +209,8 @@ app.post('/webhook', (req, res) => {
   console.log('Headers:', req.headers);  // Imprimir todas las cabeceras de la solicitud
   console.log('Body:', req.body);  // Imprimir el cuerpo de la solicitud
 
-  const signature = req.headers['x-mp-signature'];  // Esta es la clave donde se espera la firma
+  // Cambiar de 'x-mp-signature' a 'x-signature'
+  const signature = req.headers['x-signature'];  // Aquí estamos usando 'x-signature' ahora
   console.log('Firma recibida:', signature);  // Comprobar si la firma es undefined
 
   const data = req.body;
