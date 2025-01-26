@@ -206,27 +206,25 @@ function verifySignatureFunction(secretKey, data, signature) {
 
 // Endpoint para recibir notificaciones de MercadoPago
 app.post('/webhook', (req, res) => {
-  try {
-    console.log('Datos recibidos:', req.body);
+  console.log('Headers:', req.headers);  // Imprimir todas las cabeceras de la solicitud
+  console.log('Body:', req.body);  // Imprimir el cuerpo de la solicitud
 
-    const signature = req.headers['x-mp-signature'];
-    const data = req.body;
+  const signature = req.headers['x-mp-signature'];
+  const data = req.body;
 
-    const verifySignature = verifySignatureFunction(MP_SECRET_KEY, data, signature);
-    if (!verifySignature) {
-      return res.status(400).send('Firma no válida');
-    }
+  console.log('Firma recibida:', signature);  // Imprimir la firma recibida
 
-    // Procesar los datos del pago
+  const verifySignature = verifySignatureFunction(MP_SECRET_KEY, data, signature);
+  if (verifySignature) {
     if (data.status === 'approved') {
       console.log('Pago aprobado:', data);
       res.status(200).send('Pago aprobado');
     } else {
       res.status(400).send('Pago no aprobado');
     }
-  } catch (err) {
-    console.error('Error al procesar la solicitud:', err);
-    res.status(500).send('Error interno del servidor');
+  } else {
+    console.error('Firma no válida');
+    res.status(400).send('Firma no válida');
   }
 });
 
