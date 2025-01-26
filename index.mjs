@@ -209,12 +209,12 @@ app.post('/webhook', (req, res) => {
   console.log('Headers:', req.headers);  // Imprimir todas las cabeceras de la solicitud
   console.log('Body:', req.body);  // Imprimir el cuerpo de la solicitud
 
-  const signature = req.headers['x-mp-signature'];
+  const signature = req.headers['x-mp-signature'];  // Esta es la clave donde se espera la firma
+  console.log('Firma recibida:', signature);  // Comprobar si la firma es undefined
+
   const data = req.body;
-
-  console.log('Firma recibida:', signature);  // Imprimir la firma recibida
-
   const verifySignature = verifySignatureFunction(MP_SECRET_KEY, data, signature);
+
   if (verifySignature) {
     if (data.status === 'approved') {
       console.log('Pago aprobado:', data);
