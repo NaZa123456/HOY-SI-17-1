@@ -31,6 +31,7 @@ app.use(express.static(path.join(__dirname)));
 
 // Middleware para parsear JSON y datos de formularios
 app.use(express.json());  // Esto reemplaza a `bodyParser.json()`
+app.use(express.urlencoded({ extended: false }));
 
 // Configuración de sesión
 app.use(
