@@ -40,7 +40,6 @@
         <div class="buttons">
             <button class="buy-button">Foto única 5$</button>
             <button class="add-to-cart-button">Agregar al carrito</button>
-            <button class="download-button" disabled>Descargar Foto</button>
         </div>
     </div>
 
@@ -63,26 +62,8 @@
         </div>
     </footer>
 
-
-
-    <script>
-        const params = new URLSearchParams(window.location.search);
-        const paymentId = params.get('payment_id');
-        const paymentStatus = params.get('status');
-        const imageUrl = params.get('imageUrl');
-      
-        // Mostrar detalles del pago o realizar alguna lógica adicional
-        if (paymentStatus === 'approved') {
-          // Mostrar mensaje de éxito y habilitar la descarga
-          alert('¡Pago aprobado!');
-          // Lógica para permitir la descarga de la foto
-        } else {
-          alert('El pago no fue aprobado o no se completó.');
-        }
-      </script>
-    
     <script type="module" src="/payment.mjs"></script>
-
+    
     
 </body>
 </html>

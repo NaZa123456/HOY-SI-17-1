@@ -179,6 +179,93 @@ app.post('/login', async (req, res) => {
 });
 
 
+//mercado pago
+
+// Ejemplo en Node.js con Express
+const express = require('express');
+const bodyParser = require('body-parser');
+const { verify } = require('crypto');  // Para verificar la autenticidad del webhook
+
+
+// Configura tu clave de seguridad de MercadoPago
+const MP_SECRET_KEY = 'APP_USR-6105589751863240-011918-6581cf44f56ef1911fd573fc88fb43b1-379964637';  // La clave secreta de tu cuenta de MercadoPago
+
+// Usar bodyParser para analizar el cuerpo de la solicitud
+app.use(bodyParser.json());
+
+
+function verifySignatureFunction(secretKey, data, signature) {
+  const body = JSON.stringify(data);  // El cuerpo de la notificación
+  const hmac = crypto.createHmac('sha256', secretKey);
+  hmac.update(body);
+  const computedSignature = hmac.digest('hex');  // La firma generada
+
+  return computedSignature === signature;  // Comparar la firma calculada con la recibida
+}
+
+// Endpoint para recibir notificaciones de MercadoPago
+app.post('/webhook', (req, res) => {
+  // Verificar la firma de la notificación para asegurar que es de MercadoPago
+  const signature = req.headers['x-mp-signature'];
+  const data = req.body;
+
+  const verifySignature = verifySignatureFunction(MP_SECRET_KEY, data, signature);
+  if (verifySignature) {
+    // Procesa el pago (ejemplo, verificar si el estado es "approved")
+    if (data.status === 'approved') {
+      // El pago fue aprobado, hacer algo con los datos
+      console.log('Pago aprobado:', data);
+      res.status(200).send('Pago aprobado');
+    } else {
+      res.status(400).send('Pago no aprobado');
+    }
+  } else {
+    res.status(400).send('Firma no válida');
+  }
+});
+
+function verifySignatureFunction(secretKey, data, signature) {
+  // Verifica que la firma coincida
+  const computedSignature = 'sha256=' + verify(secretKey, data, signature);
+  return computedSignature === signature;
+}
+
+
+
+
+// Ruta para verificar el estado del pago
+app.get('/check-payment-status/:paymentId', async (req, res) => {
+  const paymentId = req.params.paymentId;
+
+  // Llamar a la API de MercadoPago para obtener el estado del pago
+  try {
+    const payment = await getPaymentDetails(paymentId);
+    if (payment.status === 'approved') {
+      res.json({ status: 'approved' });
+    } else {
+      res.json({ status: 'pending' });
+    }
+  } catch (error) {
+    res.status(500).send('Error al verificar el pago');
+  }
+});
+
+// Función para obtener detalles del pago desde la API de MercadoPago
+async function getPaymentDetails(paymentId) {
+  const response = await fetch(`https://api.mercadopago.com/v1/payments/${paymentId}`, {
+    headers: {
+      'Authorization': `Bearer ${MP_SECRET_KEY}`,
+    },
+  });
+  return await response.json();
+}
+
+
+
+
+
+
+
 
 // Iniciar el servidor
 const PORT = process.env.PORT || 10000;

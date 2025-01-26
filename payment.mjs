@@ -14,104 +14,60 @@ if (imageUrl) {
 
   // Cargar la imagen en el canvas
   tempImage.onload = () => {
+    // Ajustar el tamaño del canvas a las dimensiones de la imagen
     canvas.width = tempImage.width;
     canvas.height = tempImage.height;
 
+    // Dibujar la imagen en el canvas
     ctx.drawImage(tempImage, 0, 0);
+
+    // Mostrar la resolución de la imagen
     const resolutionText = document.querySelector('.resolution-text');
     resolutionText.textContent = `${tempImage.width} x ${tempImage.height}`;
 
-    ctx.font = '36px Arial';
-    ctx.fillStyle = 'rgba(255, 255, 255, 0.5)';
+    // Configurar estilo de la marca de agua
+    ctx.font = '36px Arial'; // Tamaño del texto
+    ctx.fillStyle = 'rgba(255, 255, 255, 0.5)'; // Color blanco semitransparente
     ctx.textAlign = 'center';
 
+    // Texto de la marca de agua
     const watermarkText = 'SkateMappers';
-    const textWidth = ctx.measureText(watermarkText).width;
-    const diagonalSpacing = 100;
-    const angle = -45 * Math.PI / 180;
 
+    // Repetir la marca de agua en diagonal
+    const textWidth = ctx.measureText(watermarkText).width;
+    const diagonalSpacing = 100; // Espaciado entre marcas de agua
+    const angle = -45 * Math.PI / 180; // Ángulo de inclinación (grados a radianes)
+
+    // Guardar el contexto para rotar la marca de agua
     ctx.save();
     ctx.translate(canvas.width / 2, canvas.height / 2);
     ctx.rotate(angle);
 
+    // Dibujar el texto repetido
     for (let x = -canvas.width; x < canvas.width; x += textWidth + diagonalSpacing) {
       for (let y = -canvas.height; y < canvas.height; y += diagonalSpacing) {
         ctx.fillText(watermarkText, x, y);
       }
     }
 
+    // Restaurar el contexto original
     ctx.restore();
   };
 } else {
   console.error('No se encontró el parámetro imageUrl en la URL.');
 }
 
-// Lógica de pago
+
+
+//PAGO CON EL BOTON
+// Seleccionar el botón de compra
 const buyButton = document.querySelector('.buy-button');
-const downloadButton = document.querySelector('.download-button');
 
-// Genera la preferencia de pago y obtiene el link
-const MP_ACCESS_TOKEN = 'APP_USR-6105589751863240-011918-6581cf44f56ef1911fd573fc88fb43b1-379964637';
+// Link de pago
+const paymentLink = 'https://mpago.la/25efyu8'; // Tu link de pago único
 
-const preference = {
-  items: [
-    {
-      title: 'Tubarao Fotografia',
-      unit_price: 5000,
-      quantity: 1,
-    }
-  ],
-  back_urls: {
-    success: 'https://hoy-si-17-1.onrender.com/payment.html?imageUrl=' + encodeURIComponent(imageUrl), // URL de éxito
-    failure: 'https://tuapp.com/failure',
-    pending: 'https://tuapp.com/pending',
-  },
-  auto_return: 'approved',
-};
-
-const createPreference = async () => {
-  const response = await fetch('https://api.mercadopago.com/checkout/preferences', {
-    method: 'POST',
-    headers: {
-      'Authorization': `Bearer ${MP_ACCESS_TOKEN}`,
-      'Content-Type': 'application/json',
-    },
-    body: JSON.stringify(preference),
-  });
-
-  const preferenceData = await response.json();
-  console.log(preferenceData);
-  return preferenceData.init_point; // Link de pago
-};
-
-// Redirigir al usuario al link de pago generado
+// Manejar el clic en el botón
 buyButton.addEventListener('click', () => {
-  createPreference().then(url => {
-    window.location.href = url; // Redirige al usuario al link de pago
-  });
-});
-
-// Verificar el estado del pago (esto debe hacerse después de la redirección en el back-end)
-const interval = setInterval(async () => {
-  try {
-    // Aquí debes obtener el paymentId real del pago
-    const paymentId = params.get('payment_id');  // Esto obtiene el payment_id de la URL de éxito
-    const response = await fetch(`/check-payment?paymentId=${paymentId}`);
-    const result = await response.json();
-
-    if (result.status === 'approved') {
-      clearInterval(interval); // Detenemos la verificación
-      downloadButton.disabled = false; // Habilitamos el botón de descarga
-    }
-  } catch (error) {
-    console.error('Error verificando el pago:', error);
-  }
-}, 5000); // Verificar cada 5 segundos
-
-// Descargar la foto
-downloadButton.addEventListener('click', () => {
-  const link = document.createElement('a');
-  link.href = imageUrl; // URL de la imagen original
-  link.download = 'foto.jpg'; // Nombre del archivo descargado
-  link.click();
+  // Redirigir al usuario al link de pago
+  window.location.href = paymentLink;
 });
