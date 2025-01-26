@@ -28,19 +28,9 @@ app.set('views', templatePath);
 app.use('/styles', express.static(path.join(__dirname, 'styles')));
 app.use(express.static(path.join(__dirname)));
 
-// Middleware para capturar el cuerpo crudo
-app.use((req, res, next) => {
-  req.rawBody = '';
-  req.on('data', (chunk) => {
-    req.rawBody += chunk;
-  });
-  req.on('end', () => {
-    next();
-  });
-});
-
-// Middleware para parsear JSON y datos de formularios (después de capturar el cuerpo crudo)
+// Middleware para parsear JSON y datos de formularios
 app.use(express.json());
+app.use(express.urlencoded({ extended: false }));
 
 // Configuración de sesión
 app.use(
@@ -171,26 +161,48 @@ app.post('/login', async (req, res) => {
 // MercadoPago - Clave secreta
 const MP_SECRET_KEY = 'APP_USR-6105589751863240-011918-6581cf44f56ef1911fd573fc88fb43b1-379964637';
 
+// Función para verificar la firma
+function verifySignatureFunction(secretKey, timestamp, data, receivedSignature) {
+  const rawData = `${timestamp}.${JSON.stringify(data)}`;
+  const hmac = crypto.createHmac('sha256', secretKey).update(rawData).digest('hex');
+  console.log('Firma calculada:', hmac);
+  return hmac === receivedSignature;
+}
+
+
+// Serializador para ordenar las claves del objeto JSON
+function strictStringify(obj) {
+  return JSON.stringify(obj, Object.keys(obj).sort());
+}
+
+
 // Endpoint para el webhook de MercadoPago
-// Middleware para manejar JSON y formularios
-app.use((req, res, next) => {
-  if (req.path === '/webhook') {
-    next(); // Evita el middleware para esta ruta
-  } else {
-    express.json()(req, res, next);
-  }
-});
-
-app.use(express.urlencoded({ extended: false }));
-
-// Ruta del Webhook
-app.post('/webhook', express.raw({ type: 'application/json' }), (req, res) => {
+app.post('/webhook', (req, res) => {
   try {
-    const rawBody = req.body.toString(); // Cuerpo original en formato texto
-    console.log('Webhook recibido:', rawBody);
+    const timestamp = req.headers['x-signature'].split(',')[0].split('=')[1]; // Obtener el timestamp
+    const receivedSignature = req.headers['x-signature'].split(',')[1].split('=')[1]; // Obtener la firma recibida
+    const rawData = `${timestamp}.${strictStringify(req.body)}`; // Generar el rawData
 
-    // Procesa el webhook aquí
-    res.status(200).send('Webhook procesado correctamente');
+    console.log('RawData:', rawData); // Verificar qué se está firmando
+
+    // Calcular la firma
+    const calculatedSignature = crypto
+      .createHmac('sha256', MP_SECRET_KEY)
+      .update(rawData)
+      .digest('hex');
+
+    console.log('Firma recibida:', receivedSignature);
+    console.log('Firma calculada:', calculatedSignature);
+
+    // Validar la firma
+    if (receivedSignature === calculatedSignature) {
+      console.log('Firma válida. Procesando el webhook...');
+      // Procesar la lógica del webhook aquí
+      res.status(200).send('Webhook procesado correctamente');
+    } else {
+      console.error('Firma no válida');
+      res.status(401).send('Firma no válida');
+    }
   } catch (error) {
     console.error('Error procesando el webhook:', error);
     res.status(500).send('Error interno del servidor');
