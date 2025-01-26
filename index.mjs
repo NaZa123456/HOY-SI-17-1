@@ -101,6 +101,11 @@ app.get('/profile', isAuthenticated, async (req, res) => {
   }
 });
 
+app.get('/search', (req, res) => {
+  res.sendFile(path.join(templatePath, 'search.html'));
+});
+
+
 app.get('/', (req, res) => {
   res.sendFile(path.join(templatePath, 'login.html'));
 });
@@ -172,6 +177,8 @@ app.post('/login', async (req, res) => {
     res.status(500).send('Error en el servidor.');
   }
 });
+
+
 
 // Iniciar el servidor
 const PORT = process.env.PORT || 10000;
