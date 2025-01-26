@@ -193,32 +193,40 @@ const MP_SECRET_KEY = 'APP_USR-6105589751863240-011918-6581cf44f56ef1911fd573fc8
 
 
 function verifySignatureFunction(secretKey, data, signature) {
-  const body = JSON.stringify(data);  // El cuerpo de la notificación
+  const body = JSON.stringify(data);  // Convertir los datos a JSON string
   const hmac = crypto.createHmac('sha256', secretKey);
   hmac.update(body);
-  const computedSignature = hmac.digest('hex');  // La firma generada
+  const computedSignature = hmac.digest('hex');  // Calcular la firma
 
-  return computedSignature === signature;  // Comparar la firma calculada con la recibida
+  console.log('Firma calculada:', computedSignature);
+  console.log('Firma recibida:', signature);
+
+  return computedSignature === signature;  // Comparar las firmas
 }
 
 // Endpoint para recibir notificaciones de MercadoPago
 app.post('/webhook', (req, res) => {
-  // Verificar la firma de la notificación para asegurar que es de MercadoPago
-  const signature = req.headers['x-mp-signature'];
-  const data = req.body;
+  try {
+    console.log('Datos recibidos:', req.body);
 
-  const verifySignature = verifySignatureFunction(MP_SECRET_KEY, data, signature);
-  if (verifySignature) {
-    // Procesa el pago (ejemplo, verificar si el estado es "approved")
+    const signature = req.headers['x-mp-signature'];
+    const data = req.body;
+
+    const verifySignature = verifySignatureFunction(MP_SECRET_KEY, data, signature);
+    if (!verifySignature) {
+      return res.status(400).send('Firma no válida');
+    }
+
+    // Procesar los datos del pago
     if (data.status === 'approved') {
-      // El pago fue aprobado, hacer algo con los datos
       console.log('Pago aprobado:', data);
       res.status(200).send('Pago aprobado');
     } else {
       res.status(400).send('Pago no aprobado');
     }
-  } else {
-    res.status(400).send('Firma no válida');
+  } catch (err) {
+    console.error('Error al procesar la solicitud:', err);
+    res.status(500).send('Error interno del servidor');
   }
 });
 
