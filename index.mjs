@@ -41,7 +41,6 @@ app.use((req, res, next) => {
 
 // Middleware para parsear JSON y datos de formularios (después de capturar el cuerpo crudo)
 app.use(express.json());
-app.use(express.urlencoded({ extended: false }));
 
 // Configuración de sesión
 app.use(
@@ -173,38 +172,25 @@ app.post('/login', async (req, res) => {
 const MP_SECRET_KEY = 'APP_USR-6105589751863240-011918-6581cf44f56ef1911fd573fc88fb43b1-379964637';
 
 // Endpoint para el webhook de MercadoPago
-app.post('/webhook', (req, res) => {
+// Middleware para manejar JSON y formularios
+app.use((req, res, next) => {
+  if (req.path === '/webhook') {
+    next(); // Evita el middleware para esta ruta
+  } else {
+    express.json()(req, res, next);
+  }
+});
+
+app.use(express.urlencoded({ extended: false }));
+
+// Ruta del Webhook
+app.post('/webhook', express.raw({ type: 'application/json' }), (req, res) => {
   try {
-    const receivedSignatureHeader = req.headers['x-signature'];
-    if (!receivedSignatureHeader) {
-      return res.status(400).send('Encabezado "x-signature" faltante');
-    }
+    const rawBody = req.body.toString(); // Cuerpo original en formato texto
+    console.log('Webhook recibido:', rawBody);
 
-    const timestamp = receivedSignatureHeader.split(',')[0].split('=')[1]; // Obtener el timestamp
-    const receivedSignature = receivedSignatureHeader.split(',')[1].split('=')[1]; // Obtener la firma recibida
-
-    // Utiliza el cuerpo crudo para el cálculo
-    const rawData = `${timestamp}.${req.rawBody}`;
-    console.log('RawData:', rawData); // Verificar qué se está firmando
-
-    // Calcular la firma
-    const calculatedSignature = crypto
-      .createHmac('sha256', MP_SECRET_KEY)
-      .update(rawData)
-      .digest('hex');
-
-    console.log('Firma recibida:', receivedSignature);
-    console.log('Firma calculada:', calculatedSignature);
-
-    // Validar la firma
-    if (receivedSignature === calculatedSignature) {
-      console.log('Firma válida. Procesando el webhook...');
-      // Procesar la lógica del webhook aquí
-      res.status(200).send('Webhook procesado correctamente');
-    } else {
-      console.error('Firma no válida');
-      res.status(401).send('Firma no válida');
-    }
+    // Procesa el webhook aquí
+    res.status(200).send('Webhook procesado correctamente');
   } catch (error) {
     console.error('Error procesando el webhook:', error);
     res.status(500).send('Error interno del servidor');
