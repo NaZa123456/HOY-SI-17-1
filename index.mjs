@@ -11,7 +11,6 @@ import crypto from 'crypto';  // Agrega crypto para la verificación de firmas
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = dirname(__filename);
 
-app.use('/feed', express.static(path.join(__dirname, 'feed.mjs')));
 
 
 const app = express();
