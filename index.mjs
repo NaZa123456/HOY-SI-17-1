@@ -188,7 +188,6 @@ app.post('/login', async (req, res) => {
 
 //mercado pago
 
-import express from 'express';
 import bodyParser from 'body-parser';
 import { verify } from 'crypto';  // Para verificar la autenticidad del webhook
 
