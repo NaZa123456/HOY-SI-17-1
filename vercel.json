@@ -8,8 +8,8 @@
     ],
     "routes": [
       {
-        "src": "/feed.mjs",
-        "dest": "/feed.mjs"
+        "src": "/(.*)",
+        "dest": "/index.mjs"
       }
     ]
   }
