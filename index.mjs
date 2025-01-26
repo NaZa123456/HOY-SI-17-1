@@ -209,10 +209,22 @@ app.post('/webhook', (req, res) => {
   console.log('Headers:', req.headers);  // Imprimir todas las cabeceras de la solicitud
   console.log('Body:', req.body);  // Imprimir el cuerpo de la solicitud
 
-  // Cambiar de 'x-mp-signature' a 'x-signature'
-  const signature = req.headers['x-signature'];  // Aquí estamos usando 'x-signature' ahora
-  console.log('Firma recibida:', signature);  // Comprobar si la firma es undefined
+  // Obtener la firma del encabezado
+  const signatureHeader = req.headers['x-signature'];  // Encabezado 'x-signature'
+  console.log('Firma recibida:', signatureHeader);
 
+  // Extraer solo el valor de "v1" de la firma
+  const signatureMatch = signatureHeader.match(/v1=([a-f0-9]+)/); // Busca "v1=<firma>"
+  const signature = signatureMatch ? signatureMatch[1] : null;
+
+  if (!signature) {
+    console.error('No se pudo extraer la firma de v1.');
+    return res.status(400).send('Firma no válida.');
+  }
+
+  console.log('Firma procesada (v1):', signature);
+
+  // Procesar la firma
   const data = req.body;
   const verifySignature = verifySignatureFunction(MP_SECRET_KEY, data, signature);
 
