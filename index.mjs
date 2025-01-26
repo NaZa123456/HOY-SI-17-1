@@ -4,16 +4,8 @@ import path from 'path';
 import { fileURLToPath } from 'url';
 import { dirname } from 'path';
 import session from 'express-session';
-
-
-app.use((req, res, next) => {
-  res.setHeader('Access-Control-Allow-Origin', '*');
-  res.setHeader('Access-Control-Allow-Methods', 'POST');
-  res.setHeader('Access-Control-Allow-Headers', 'Content-Type');
-  next();
-});
-
-
+import bodyParser from 'body-parser';  // Si necesitas bodyParser también
+import crypto from 'crypto';  // Agrega crypto para la verificación de firmas
 
 // Obtener la ruta del directorio actual
 const __filename = fileURLToPath(import.meta.url);
@@ -21,7 +13,12 @@ const __dirname = dirname(__filename);
 
 const app = express();
 
-app.set('view engine', 'ejs');
+app.use((req, res, next) => {
+  res.setHeader('Access-Control-Allow-Origin', '*');
+  res.setHeader('Access-Control-Allow-Methods', 'POST');
+  res.setHeader('Access-Control-Allow-Headers', 'Content-Type');
+  next();
+});
 
 // Configuración de rutas de plantillas y archivos estáticos
 const templatePath = path.join(__dirname, 'templates');
@@ -112,7 +109,6 @@ app.get('/search', (req, res) => {
   res.sendFile(path.join(templatePath, 'search.html'));
 });
 
-
 app.get('/', (req, res) => {
   res.sendFile(path.join(templatePath, 'login.html'));
 });
@@ -185,18 +181,12 @@ app.post('/login', async (req, res) => {
   }
 });
 
-
-//mercado pago
-
-import bodyParser from 'body-parser';
-import { verify } from 'crypto';  // Para verificar la autenticidad del webhook
-
+// MercadoPago
 // Configura tu clave de seguridad de MercadoPago
 const MP_SECRET_KEY = 'APP_USR-6105589751863240-011918-6581cf44f56ef1911fd573fc88fb43b1-379964637';  // La clave secreta de tu cuenta de MercadoPago
 
 // Usar bodyParser para analizar el cuerpo de la solicitud
 app.use(bodyParser.json());
-
 
 function verifySignatureFunction(secretKey, data, signature) {
   const body = JSON.stringify(data);  // El cuerpo de la notificación
@@ -227,49 +217,6 @@ app.post('/webhook', (req, res) => {
     res.status(400).send('Firma no válida');
   }
 });
-
-function verifySignatureFunction(secretKey, data, signature) {
-  // Verifica que la firma coincida
-  const computedSignature = 'sha256=' + verify(secretKey, data, signature);
-  return computedSignature === signature;
-}
-
-
-
-
-// Ruta para verificar el estado del pago
-app.get('/check-payment-status/:paymentId', async (req, res) => {
-  const paymentId = req.params.paymentId;
-
-  // Llamar a la API de MercadoPago para obtener el estado del pago
-  try {
-    const payment = await getPaymentDetails(paymentId);
-    if (payment.status === 'approved') {
-      res.json({ status: 'approved' });
-    } else {
-      res.json({ status: 'pending' });
-    }
-  } catch (error) {
-    res.status(500).send('Error al verificar el pago');
-  }
-});
-
-// Función para obtener detalles del pago desde la API de MercadoPago
-async function getPaymentDetails(paymentId) {
-  const response = await fetch(`https://api.mercadopago.com/v1/payments/${paymentId}`, {
-    headers: {
-      'Authorization': `Bearer ${MP_SECRET_KEY}`,
-    },
-  });
-  return await response.json();
-}
-
-
-
-
-
-
-
 
 // Iniciar el servidor
 const PORT = process.env.PORT || 10000;
