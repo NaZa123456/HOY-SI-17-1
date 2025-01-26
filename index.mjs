@@ -169,43 +169,44 @@ function verifySignatureFunction(secretKey, timestamp, data, receivedSignature) 
   return hmac === receivedSignature;
 }
 
-
-// Serializador para ordenar las claves del objeto JSON
-function strictStringify(obj) {
-  return JSON.stringify(obj, Object.keys(obj).sort());
-}
-
-
 // Endpoint para el webhook de MercadoPago
 app.post('/webhook', (req, res) => {
-  try {
-    const timestamp = req.headers['x-signature'].split(',')[0].split('=')[1]; // Obtener el timestamp
-    const receivedSignature = req.headers['x-signature'].split(',')[1].split('=')[1]; // Obtener la firma recibida
-    const rawData = `${timestamp}.${strictStringify(req.body)}`; // Generar el rawData
+  console.log('Headers:', req.headers);
+  console.log('Body:', req.body);
 
-    console.log('RawData:', rawData); // Verificar qué se está firmando
+  const signatureHeader = req.headers['x-signature'];
+  if (!signatureHeader) {
+    console.error('Encabezado x-signature faltante');
+    return res.status(400).send('Firma no válida.');
+  }
 
-    // Calcular la firma
-    const calculatedSignature = crypto
-      .createHmac('sha256', MP_SECRET_KEY)
-      .update(rawData)
-      .digest('hex');
+  const timestampMatch = signatureHeader.match(/ts=(\d+)/);
+  const signatureMatch = signatureHeader.match(/v1=([a-f0-9]+)/);
 
-    console.log('Firma recibida:', receivedSignature);
-    console.log('Firma calculada:', calculatedSignature);
+  if (!timestampMatch || !signatureMatch) {
+    console.error('No se pudo extraer la firma o el timestamp.');
+    return res.status(400).send('Firma no válida.');
+  }
 
-    // Validar la firma
-    if (receivedSignature === calculatedSignature) {
-      console.log('Firma válida. Procesando el webhook...');
-      // Procesar la lógica del webhook aquí
-      res.status(200).send('Webhook procesado correctamente');
+  const timestamp = timestampMatch[1];
+  const receivedSignature = signatureMatch[1];
+  console.log('Timestamp:', timestamp);
+  console.log('Firma recibida (v1):', receivedSignature);
+
+  const isValidSignature = verifySignatureFunction(MP_SECRET_KEY, timestamp, req.body, receivedSignature);
+
+  if (isValidSignature) {
+    console.log('Firma válida');
+    if (req.body.status === 'approved') {
+      console.log('Pago aprobado:', req.body);
+      res.status(200).send('Pago aprobado');
     } else {
-      console.error('Firma no válida');
-      res.status(401).send('Firma no válida');
+      console.log('Pago no aprobado:', req.body);
+      res.status(400).send('Pago no aprobado');
     }
-  } catch (error) {
-    console.error('Error procesando el webhook:', error);
-    res.status(500).send('Error interno del servidor');
+  } else {
+    console.error('Firma no válida');
+    res.status(400).send('Firma no válida');
   }
 });
 
