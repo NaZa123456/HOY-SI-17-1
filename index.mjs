@@ -5,6 +5,14 @@ import { fileURLToPath } from 'url';
 import { dirname } from 'path';
 import session from 'express-session';
 
+
+// Obtener la ruta del directorio actual
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = dirname(__filename);
+
+const app = express();
+
+
 // Middleware para habilitar CORS
 app.use((req, res, next) => {
   res.setHeader('Access-Control-Allow-Origin', '*');  // Permite cualquier origen
@@ -12,13 +20,6 @@ app.use((req, res, next) => {
   res.setHeader('Access-Control-Allow-Headers', 'Content-Type');  // Permite el encabezado Content-Type
   next();
 });
-
-
-// Obtener la ruta del directorio actual
-const __filename = fileURLToPath(import.meta.url);
-const __dirname = dirname(__filename);
-
-const app = express();
 
 app.set('view engine', 'ejs');
 
