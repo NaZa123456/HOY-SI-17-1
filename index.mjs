@@ -219,7 +219,7 @@ app.post('/webhook', (req, res) => {
 });
 
 // Iniciar el servidor
-const PORT = process.env.PORT || 10000;
+const PORT = process.env.PORT || 3000; // O usa el puerto predeterminado
 app.listen(PORT, () => {
   console.log(`Servidor corriendo en el puerto ${PORT}`);
 });
