@@ -188,11 +188,9 @@ app.post('/login', async (req, res) => {
 
 //mercado pago
 
-// Ejemplo en Node.js con Express
-const express = require('express');
-const bodyParser = require('body-parser');
-const { verify } = require('crypto');  // Para verificar la autenticidad del webhook
-
+import express from 'express';
+import bodyParser from 'body-parser';
+import { verify } from 'crypto';  // Para verificar la autenticidad del webhook
 
 // Configura tu clave de seguridad de MercadoPago
 const MP_SECRET_KEY = 'APP_USR-6105589751863240-011918-6581cf44f56ef1911fd573fc88fb43b1-379964637';  // La clave secreta de tu cuenta de MercadoPago
