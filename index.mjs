@@ -28,7 +28,18 @@ app.set('views', templatePath);
 app.use('/styles', express.static(path.join(__dirname, 'styles')));
 app.use(express.static(path.join(__dirname)));
 
-// Middleware para parsear JSON y datos de formularios
+// Middleware para capturar el cuerpo crudo
+app.use((req, res, next) => {
+  req.rawBody = '';
+  req.on('data', (chunk) => {
+    req.rawBody += chunk;
+  });
+  req.on('end', () => {
+    next();
+  });
+});
+
+// Middleware para parsear JSON y datos de formularios (después de capturar el cuerpo crudo)
 app.use(express.json());
 app.use(express.urlencoded({ extended: false }));
 
@@ -161,28 +172,19 @@ app.post('/login', async (req, res) => {
 // MercadoPago - Clave secreta
 const MP_SECRET_KEY = 'APP_USR-6105589751863240-011918-6581cf44f56ef1911fd573fc88fb43b1-379964637';
 
-// Función para verificar la firma
-function verifySignatureFunction(secretKey, timestamp, data, receivedSignature) {
-  const rawData = `${timestamp}.${JSON.stringify(data)}`;
-  const hmac = crypto.createHmac('sha256', secretKey).update(rawData).digest('hex');
-  console.log('Firma calculada:', hmac);
-  return hmac === receivedSignature;
-}
-
-
-// Serializador para ordenar las claves del objeto JSON
-function strictStringify(obj) {
-  return JSON.stringify(obj, Object.keys(obj).sort());
-}
-
-
 // Endpoint para el webhook de MercadoPago
 app.post('/webhook', (req, res) => {
   try {
-    const timestamp = req.headers['x-signature'].split(',')[0].split('=')[1]; // Obtener el timestamp
-    const receivedSignature = req.headers['x-signature'].split(',')[1].split('=')[1]; // Obtener la firma recibida
-    const rawData = `${timestamp}.${strictStringify(req.body)}`; // Generar el rawData
+    const receivedSignatureHeader = req.headers['x-signature'];
+    if (!receivedSignatureHeader) {
+      return res.status(400).send('Encabezado "x-signature" faltante');
+    }
 
+    const timestamp = receivedSignatureHeader.split(',')[0].split('=')[1]; // Obtener el timestamp
+    const receivedSignature = receivedSignatureHeader.split(',')[1].split('=')[1]; // Obtener la firma recibida
+
+    // Utiliza el cuerpo crudo para el cálculo
+    const rawData = `${timestamp}.${req.rawBody}`;
     console.log('RawData:', rawData); // Verificar qué se está firmando
 
     // Calcular la firma
