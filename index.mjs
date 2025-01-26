@@ -30,8 +30,7 @@ app.use('/styles', express.static(path.join(__dirname, 'styles')));
 app.use(express.static(path.join(__dirname)));
 
 // Middleware para parsear JSON y datos de formularios
-app.use(express.json());
-app.use(express.urlencoded({ extended: false }));
+app.use(express.json());  // Esto reemplaza a `bodyParser.json()`
 
 // Configuración de sesión
 app.use(
@@ -190,7 +189,6 @@ app.post('/login', async (req, res) => {
 const MP_SECRET_KEY = 'APP_USR-6105589751863240-011918-6581cf44f56ef1911fd573fc88fb43b1-379964637';  // La clave secreta de tu cuenta de MercadoPago
 
 // Usar bodyParser para analizar el cuerpo de la solicitud
-app.use(bodyParser.json());
 
 function verifySignatureFunction(secretKey, data, signature) {
   const body = JSON.stringify(data);  // El cuerpo de la notificación
