@@ -4,23 +4,17 @@ import path from 'path';
 import { fileURLToPath } from 'url';
 import { dirname } from 'path';
 import session from 'express-session';
-import bodyParser from 'body-parser';  // Si necesitas bodyParser también
-import crypto from 'crypto';  // Agrega crypto para la verificación de firmas
+
+
+
 
 // Obtener la ruta del directorio actual
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = dirname(__filename);
 
-
-
 const app = express();
 
-app.use((req, res, next) => {
-  res.setHeader('Access-Control-Allow-Origin', '*');
-  res.setHeader('Access-Control-Allow-Methods', 'POST');
-  res.setHeader('Access-Control-Allow-Headers', 'Content-Type');
-  next();
-});
+app.set('view engine', 'ejs');
 
 // Configuración de rutas de plantillas y archivos estáticos
 const templatePath = path.join(__dirname, 'templates');
@@ -111,6 +105,7 @@ app.get('/search', (req, res) => {
   res.sendFile(path.join(templatePath, 'search.html'));
 });
 
+
 app.get('/', (req, res) => {
   res.sendFile(path.join(templatePath, 'login.html'));
 });
@@ -183,45 +178,10 @@ app.post('/login', async (req, res) => {
   }
 });
 
-// MercadoPago
-// Configura tu clave de seguridad de MercadoPago
-const MP_SECRET_KEY = 'APP_USR-6105589751863240-011918-6581cf44f56ef1911fd573fc88fb43b1-379964637';  // La clave secreta de tu cuenta de MercadoPago
 
-// Usar bodyParser para analizar el cuerpo de la solicitud
-app.use(bodyParser.json());
-
-function verifySignatureFunction(secretKey, data, signature) {
-  const body = JSON.stringify(data);  // El cuerpo de la notificación
-  const hmac = crypto.createHmac('sha256', secretKey);
-  hmac.update(body);
-  const computedSignature = hmac.digest('hex');  // La firma generada
-
-  return computedSignature === signature;  // Comparar la firma calculada con la recibida
-}
-
-// Endpoint para recibir notificaciones de MercadoPago
-app.post('/webhook', (req, res) => {
-  // Verificar la firma de la notificación para asegurar que es de MercadoPago
-  const signature = req.headers['x-mp-signature'];
-  const data = req.body;
-
-  const verifySignature = verifySignatureFunction(MP_SECRET_KEY, data, signature);
-  if (verifySignature) {
-    // Procesa el pago (ejemplo, verificar si el estado es "approved")
-    if (data.status === 'approved') {
-      // El pago fue aprobado, hacer algo con los datos
-      console.log('Pago aprobado:', data);
-      res.status(200).send('Pago aprobado');
-    } else {
-      res.status(400).send('Pago no aprobado');
-    }
-  } else {
-    res.status(400).send('Firma no válida');
-  }
-});
 
 // Iniciar el servidor
-const PORT = process.env.PORT || 3000; // O usa el puerto predeterminado
+const PORT = process.env.PORT || 10000;
 app.listen(PORT, () => {
   console.log(`Servidor corriendo en el puerto ${PORT}`);
 });
