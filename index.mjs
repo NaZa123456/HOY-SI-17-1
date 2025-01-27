@@ -4,6 +4,8 @@ import path from 'path';
 import { fileURLToPath } from 'url';
 import { dirname } from 'path';
 import session from 'express-session';
+import axios from 'axios';
+
 
 // Obtener la ruta del directorio actual
 const __filename = fileURLToPath(import.meta.url);
