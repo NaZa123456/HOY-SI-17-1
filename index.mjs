@@ -4,7 +4,6 @@ import path from 'path';
 import { fileURLToPath } from 'url';
 import { dirname } from 'path';
 import session from 'express-session';
-import crypto from 'crypto';
 
 // Obtener la ruta del directorio actual
 const __filename = fileURLToPath(import.meta.url);
@@ -158,55 +157,18 @@ app.post('/login', async (req, res) => {
   }
 });
 
-// MercadoPago - Clave secreta
-const MP_SECRET_KEY = 'APP_USR-6105589751863240-011918-6581cf44f56ef1911fd573fc88fb43b1-379964637';
-
-// Función para verificar la firma
-function verifySignatureFunction(secretKey, timestamp, data, receivedSignature) {
-  const rawData = `${timestamp}.${JSON.stringify(data)}`;
-  const hmac = crypto.createHmac('sha256', secretKey).update(rawData).digest('hex');
-  console.log('Firma calculada:', hmac);
-  return hmac === receivedSignature;
-}
-
-// Endpoint para el webhook de MercadoPago
+// MercadoPago - Webhook simplificado para pruebas
 app.post('/webhook', (req, res) => {
   console.log('Headers:', req.headers);
   console.log('Body:', req.body);
 
-  const signatureHeader = req.headers['x-signature'];
-  if (!signatureHeader) {
-    console.error('Encabezado x-signature faltante');
-    return res.status(400).send('Firma no válida.');
-  }
-
-  const timestampMatch = signatureHeader.match(/ts=(\d+)/);
-  const signatureMatch = signatureHeader.match(/v1=([a-f0-9]+)/);
-
-  if (!timestampMatch || !signatureMatch) {
-    console.error('No se pudo extraer la firma o el timestamp.');
-    return res.status(400).send('Firma no válida.');
-  }
-
-  const timestamp = timestampMatch[1];
-  const receivedSignature = signatureMatch[1];
-  console.log('Timestamp:', timestamp);
-  console.log('Firma recibida (v1):', receivedSignature);
-
-  const isValidSignature = verifySignatureFunction(MP_SECRET_KEY, timestamp, req.body, receivedSignature);
-
-  if (isValidSignature) {
-    console.log('Firma válida');
-    if (req.body.status === 'approved') {
-      console.log('Pago aprobado:', req.body);
-      res.status(200).send('Pago aprobado');
-    } else {
-      console.log('Pago no aprobado:', req.body);
-      res.status(400).send('Pago no aprobado');
-    }
+  // Aquí procesamos directamente el cuerpo de la solicitud sin validar la firma
+  if (req.body.status === 'approved') {
+    console.log('Pago aprobado:', req.body);
+    res.status(200).send('Pago aprobado');
   } else {
-    console.error('Firma no válida');
-    res.status(400).send('Firma no válida');
+    console.log('Pago no aprobado:', req.body);
+    res.status(400).send('Pago no aprobado');
   }
 });
 
