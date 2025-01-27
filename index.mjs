@@ -160,7 +160,7 @@ app.post('/login', async (req, res) => {
 });
 
 // MercadoPago - Clave secreta
-const ACCESS_TOKEN = "APP_USR-6105589751863240-011918-6581cf44f56ef1911fd573fc88fb43b1-379964637" // Configura tu Access Token de Mercado Pago
+const ACCESS_TOKEN = "TEST-6105589751863240-011918-fed50ce99e077f839084991fed557ed3-379964637" // Configura tu Access Token de Mercado Pago
 
 // Endpoint para el webhook de MercadoPago
 app.post('/webhook', async (req, res) => {
