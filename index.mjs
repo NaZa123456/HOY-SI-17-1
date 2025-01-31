@@ -159,3 +159,10 @@ app.post('/login', async (req, res) => {
   }
 });
 
+
+const PORT = process.env.PORT || 10000; // Usa el puerto de Render o el 3000 por defecto
+
+app.listen(PORT, () => {
+  console.log(`Servidor escuchando en el puerto ${PORT}`);
+});
+
