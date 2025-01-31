@@ -4,7 +4,8 @@ import path from 'path';
 import { fileURLToPath } from 'url';
 import { dirname } from 'path';
 import session from 'express-session';
-import axios from 'axios';
+
+
 
 
 // Obtener la ruta del directorio actual
@@ -12,14 +13,6 @@ const __filename = fileURLToPath(import.meta.url);
 const __dirname = dirname(__filename);
 
 const app = express();
-
-// Middleware para habilitar CORS
-app.use((req, res, next) => {
-  res.setHeader('Access-Control-Allow-Origin', '*');
-  res.setHeader('Access-Control-Allow-Methods', 'POST');
-  res.setHeader('Access-Control-Allow-Headers', 'Content-Type');
-  next();
-});
 
 app.set('view engine', 'ejs');
 
@@ -36,9 +29,9 @@ app.use(express.urlencoded({ extended: false }));
 // Configuración de sesión
 app.use(
   session({
-    secret: 'Naza16102006Pirotecnia',
-    resave: false,
-    saveUninitialized: false,
+    secret: 'Naza16102006Pirotecnia', // Cambia esto por una clave segura
+    resave: false, // No guardar la sesión si no hay cambios
+    saveUninitialized: false, // No guardar sesiones vacías
   })
 );
 
@@ -52,11 +45,28 @@ mongoose
 
 // Definición del esquema y modelo de usuario
 const LogInSchema = new mongoose.Schema({
-  name: { type: String, required: true },
-  gmail: { type: String, required: true, unique: true },
-  password: { type: String, required: true },
-  instagram: { type: String, required: true },
-  role: { type: String, enum: ['Usuario', 'Fotógrafo'], required: true },
+  name: {
+    type: String,
+    required: true,
+  },
+  gmail: {
+    type: String,
+    required: true,
+    unique: true,
+  },
+  password: {
+    type: String,
+    required: true,
+  },
+  instagram: {
+    type: String,
+    required: true,
+  },
+  role: {
+    type: String,
+    enum: ['Usuario', 'Fotógrafo'],
+    required: true,
+  },
 });
 
 const User = mongoose.model('User', LogInSchema);
@@ -71,24 +81,15 @@ function isAuthenticated(req, res, next) {
 }
 
 // Rutas
-app.get('/', (req, res) => {
-  res.sendFile(path.join(templatePath, 'login.html'));
-});
-
-app.get('/signup', (req, res) => {
-  res.sendFile(path.join(templatePath, 'signup.html'));
-});
-
-app.get('/home', isAuthenticated, (req, res) => {
-  res.sendFile(path.join(templatePath, 'home.html'));
-});
-
 app.get('/profile', isAuthenticated, async (req, res) => {
   try {
+    // Buscar al usuario autenticado en la base de datos usando su ID de sesión
     const user = await User.findById(req.session.user.id);
     if (!user) {
       return res.status(404).send('Usuario no encontrado');
     }
+
+    // Renderizar la página de perfil con los datos del usuario
     res.render('profile.ejs', {
       name: user.name,
       instagram: user.instagram,
@@ -102,6 +103,19 @@ app.get('/profile', isAuthenticated, async (req, res) => {
 
 app.get('/search', (req, res) => {
   res.sendFile(path.join(templatePath, 'search.html'));
+});
+
+
+app.get('/', (req, res) => {
+  res.sendFile(path.join(templatePath, 'login.html'));
+});
+
+app.get('/signup', (req, res) => {
+  res.sendFile(path.join(templatePath, 'signup.html'));
+});
+
+app.get('/home', isAuthenticated, (req, res) => {
+  res.sendFile(path.join(templatePath, 'home.html'));
 });
 
 app.get('/payment.html', (req, res) => {
@@ -147,7 +161,12 @@ app.post('/login', async (req, res) => {
     }
 
     if (user.password === password) {
-      req.session.user = { id: user._id, name: user.name, role: user.role };
+      // Guardar información del usuario en la sesión
+      req.session.user = {
+        id: user._id,
+        name: user.name,
+        role: user.role,
+      };
       console.log('Inicio de sesión exitoso.');
       return res.redirect('/home');
     } else {
@@ -160,9 +179,9 @@ app.post('/login', async (req, res) => {
 });
 
 
-const PORT = process.env.PORT || 10000; // Usa el puerto de Render o el 3000 por defecto
 
+// Iniciar el servidor
+const PORT = process.env.PORT || 10000;
 app.listen(PORT, () => {
-  console.log(`Servidor escuchando en el puerto ${PORT}`);
+  console.log(`Servidor corriendo en el puerto ${PORT}`);
 });
-

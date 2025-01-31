@@ -13,10 +13,10 @@ if (searchInput && searchPhotoSection) {
     postElement.className = 'photo-card';
     postElement.innerHTML = `
       <div class="photo-header">
-        <h3>${post.city}</h3>
-        <p>${new Date(post.date.seconds * 1000).toLocaleString()}</p>
+        <h3>${post.city || 'Sin ciudad'}</h3>
+        <p>${post.date?.seconds ? new Date(post.date.seconds * 1000).toLocaleString() : 'Fecha desconocida'}</p>
       </div>
-      <img src="${post.imageUrl}" alt="Foto de ${post.city}" id="image-${post.id}" />
+      <img src="${post.imageUrl}" alt="Foto de ${post.city || 'Sin ciudad'}" id="image-${post.id}" />
     `;
 
     const image = postElement.querySelector('img');
@@ -33,13 +33,15 @@ if (searchInput && searchPhotoSection) {
 
   // Función para buscar publicaciones
   async function searchPhotos(query) {
-    searchPhotoSection.innerHTML = ''; // Limpiar la galería
+    searchPhotoSection.innerHTML = ''; // Limpiar la galería antes de mostrar resultados
     const querySnapshot = await getDocs(collection(db, 'posts'));
 
     querySnapshot.forEach((doc) => {
       const post = doc.data();
       const postId = doc.id;
-      if (post.city.toLowerCase().includes(query.toLowerCase())) {
+
+      // Verificar que la propiedad `city` existe antes de llamar `toLowerCase()`
+      if (post.city && typeof post.city === 'string' && post.city.toLowerCase().includes(query.toLowerCase())) {
         post.id = postId; // Asignar el ID al post
         addSearchPhotoToGallery(post);
       }
