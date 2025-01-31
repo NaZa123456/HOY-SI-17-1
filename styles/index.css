@@ -1,6 +1,8 @@
 body {
-    margin: 0;
+    margin: auto;
     font-family: Arial, sans-serif;
+    max-width: 400px; /* Limitamos el ancho a 350px */
+
   }
   
   .navbar {
@@ -160,8 +162,10 @@ body {
   .footer {
     position: fixed;
     bottom: 0;
-    left: 0;
+    left: 50%; /* Lo centramos en la mitad de la pantalla */
+    transform: translateX(-50%); /* Ajuste para centrarlo */
     width: 100%;
+    max-width: 400px; /* Limitamos su ancho */
     background-color: #fff;
     display: flex;
     justify-content: space-around;
